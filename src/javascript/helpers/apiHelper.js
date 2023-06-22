@@ -13,7 +13,7 @@ const SECURITY_HEADERS = {
     }
 };
 
-const useMockAPI = true;
+const useMockAPI = false;
 
 function getFighterById(endpoint) {
     const start = endpoint.lastIndexOf('/');
