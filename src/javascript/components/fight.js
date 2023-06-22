@@ -4,22 +4,33 @@ function getRandomNumber(min = 1, max = 2) {
     return Math.random() * (max - min) + min;
 }
 
-function getHitPower(fighter) {
-    return fighter.attack * getRandomNumber();
+function getHitPower(attack) {
+    const randomNumber = getRandomNumber();
+    return attack.attack * randomNumber;
 }
 
-function getBlockPower(fighter) {
-    return fighter.defense * getRandomNumber();
+function getBlockPower(defense) {
+    const randomNumber = getRandomNumber();
+    return defense.defense * randomNumber;
 }
 
 function getDamage(attacker, defender = null) {
-    const bonusAttack = getHitPower(attacker);
-    if (defender === null) return bonusAttack;
+    // const bonusAttack = getHitPower(attacker);
+    if (defender === null) return attacker;
 
-    const bonusDefense = getBlockPower(defender);
-    if (bonusAttack <= bonusDefense) return 0;
-    return bonusAttack - bonusDefense;
+    // const defender = getBlockPower(defender);
+    if (attacker <= defender) return 0;
+    return attacker - defender;
 }
+
+// function getDamage(attacker, defender = null) {
+//     const bonusAttack = getHitPower(attacker);
+//     if (defender === null) return bonusAttack;
+
+//     const bonusDefense = getBlockPower(defender);
+//     if (bonusAttack <= bonusDefense) return 0;
+//     return bonusAttack - bonusDefense;
+// }
 
 export function getCriticalDamage(attacker) {
     return 2 * attacker.attack;
@@ -74,11 +85,13 @@ export async function fight([firstFighter, secondFighter]) {
                 case controls.PlayerOneAttack:
                     fistPlayerMove = 'attack';
                     if (secondPlayerMove === 'attack' || secondPlayerMove === '') {
-                        secondPlayerHealth -= getDamage(firstFighter);
+                        // secondPlayerHealth -= getDamage(firstFighter);
+                        secondPlayerHealth -= getDamage(getHitPower(firstFighter), getBlockPower(secondFighter));
                         helthCounter(secondPlayerHealth, secondPlayerHealthIndicator, player.right);
                     }
                     if (secondPlayerMove === 'defense') {
-                        secondPlayerHealth -= getDamage(firstFighter, secondFighter);
+                        // secondPlayerHealth -= getDamage(firstFighter, secondFighter);
+                        secondPlayerHealth -= getDamage(getHitPower(firstFighter), getBlockPower(secondFighter));
                         helthCounter(secondPlayerHealth, secondPlayerHealthIndicator, player.right);
                     }
                     if (secondPlayerHealth <= 0) {
@@ -91,11 +104,13 @@ export async function fight([firstFighter, secondFighter]) {
                 case controls.PlayerTwoAttack:
                     secondPlayerMove = 'attack';
                     if (fistPlayerMove === 'attack' || fistPlayerMove === '') {
-                        fistPlayerHealth -= getDamage(secondFighter);
+                        // fistPlayerHealth -= getDamage(secondFighter);
+                        fistPlayerHealth -= getDamage(getHitPower(secondFighter), getBlockPower(firstFighter));
                         helthCounter(fistPlayerHealth, fistPlayerHealthIndicator, player.left);
                     }
                     if (fistPlayerMove === 'defense') {
-                        fistPlayerHealth -= getDamage(secondFighter, firstFighter);
+                        // fistPlayerHealth -= getDamage(secondFighter, firstFighter);
+                        fistPlayerHealth -= getDamage(getHitPower(secondFighter), getBlockPower(firstFighter));
                         helthCounter(fistPlayerHealth, fistPlayerHealthIndicator, player.left);
                     }
                     if (fistPlayerHealth <= 0) {
