@@ -14,8 +14,9 @@ function getBlockPower(fighter) {
 
 function getDamage(attacker, defender = null) {
     const bonusAttack = getHitPower(attacker);
-    const bonusDefense = getBlockPower(defender);
     if (defender === null) return bonusAttack;
+
+    const bonusDefense = getBlockPower(defender);
     if (bonusAttack <= bonusDefense) return 0;
     return bonusAttack - bonusDefense;
 }
@@ -94,14 +95,14 @@ export async function fight([firstFighter, secondFighter]) {
                 case controls.PlayerOneCriticalHitCombination[1]:
                 case controls.PlayerOneCriticalHitCombination[2]:
                     if (!firstPlayerCriticalHitCombinationIsActive) {
-                        //   console.log('First Fighter Await 10s!!');
+                        // console.log('First Fighter Await 10s!!');
                         break;
                     }
                     if (firstPlayerCriticalHitCombination.indexOf(keydown) === -1) {
                         firstPlayerCriticalHitCombination.push(keydown);
                     }
                     if (firstPlayerCriticalHitCombination.length === 3) {
-                        //   console.log(`Critical DAMAGE -${2 * firstFighter.attack}!`);
+                        // console.log(`Critical DAMAGE -${2 * firstFighter.attack}!`);
                         secondPlayerHealth -= getCriticalDamage(firstFighter);
                         //   console.log(getCriticalDamage(firstFighter));
                         firstPlayerCriticalHitCombination = [];
@@ -157,7 +158,15 @@ export async function fight([firstFighter, secondFighter]) {
         }
 
         document.addEventListener('keydown', keyCodeListener);
-        document.addEventListener('keyup', keyupListener(controls.PlayerOneCriticalHitCombination));
-        document.addEventListener('keyup', keyupListener(controls.PlayerTwoCriticalHitCombination));
+        // document.addEventListener('keyup', keyupListener(event, controls.PlayerOneCriticalHitCombination));
+        // document.addEventListener('keyup', keyupListener(event, controls.PlayerTwoCriticalHitCombination));
+
+        document.addEventListener('keyup', event => {
+            keyupListener(event, controls.PlayerOneCriticalHitCombination);
+        });
+
+        document.addEventListener('keyup', event => {
+            keyupListener(event, controls.PlayerTwoCriticalHitCombination);
+        });
     });
 }
