@@ -2,11 +2,21 @@ import createElement from '../helpers/domHelper';
 import renderArena from './arena';
 import versusImg from '../../../resources/versus.png';
 import { createFighterPreview } from './fighterPreview';
+import fighterService from '../services/fightersService';
 
 const fighterDetailsMap = new Map();
 
 export async function getFighterInfo(fighterId) {
-    // get fighter info from fighterDetailsMap or from service and write it to fighterDetailsMap
+    // get fighter info from fighterDetailsMap or from service
+    // and write it to fighterDetailsMap
+
+    // console.log(fighterId)
+    if (!fighterDetailsMap.has(fighterId)) {
+        const fighterInfo = await fighterService.getFighterDetails(fighterId);
+        fighterDetailsMap.set(fighterId, fighterInfo);
+    }
+    // console.log(fighterDetailsMap.get(fighterId));
+    return fighterDetailsMap.get(fighterId);
 }
 
 function startFight(selectedFighters) {
@@ -35,7 +45,7 @@ function createVersusBlock(selectedFighters) {
     return container;
 }
 
-function renderSelectedFighters(selectedFighters) {
+export function renderSelectedFighters(selectedFighters) {
     const fightersPreview = document.querySelector('.preview-container___root');
     const [playerOne, playerTwo] = selectedFighters;
     const firstPreview = createFighterPreview(playerOne, 'left');
@@ -55,7 +65,7 @@ export function createFightersSelector() {
         const firstFighter = playerOne ?? fighter;
         const secondFighter = playerOne ? playerTwo ?? fighter : playerTwo;
         selectedFighters = [firstFighter, secondFighter];
-
+        // console.log(selectedFighters)
         renderSelectedFighters(selectedFighters);
     };
 }
