@@ -26,14 +26,19 @@ export function getCriticalDamage(attacker) {
 }
 
 export async function fight([firstFighter, secondFighter]) {
+    const firstFighterHelthElement = document.getElementById('left-fighter-indicator');
+    const secondFighterHelthElement = document.getElementById('right-fighter-indicator');
+    const styles = window.getComputedStyle(firstFighterHelthElement);
+    const backgroundColor = styles.getPropertyValue('background-color');
+
     return new Promise(resolve => {
         let winner = null;
-        // console.log(firstFighter, secondFighter);
 
         let fistPlayerHealth = firstFighter.health;
         let secondPlayerHealth = secondFighter.health;
-        //         console.log(fistPlayerHealth);
-        //   console.log(secondPlayerHealth);
+
+        const fistPlayerHealthIndicator = fistPlayerHealth;
+        const secondPlayerHealthIndicator = secondPlayerHealth;
 
         let firstPlayerCriticalHitCombination = [];
         let secondPlayerCriticalHitCombination = [];
@@ -44,6 +49,24 @@ export async function fight([firstFighter, secondFighter]) {
         let fistPlayerMove = '';
         let secondPlayerMove = '';
 
+        const player = {
+            left: 'left',
+            right: 'right'
+        };
+
+        function helthCounter(prev, playerHealthIndicator, playerPosition) {
+            if (playerPosition === 'left') {
+                const indicatorValue = (prev / playerHealthIndicator) * 100;
+                firstFighterHelthElement.style.width = `${indicatorValue}%`;
+                firstFighterHelthElement.style.backgroundColor = indicatorValue > 30 ? backgroundColor : 'red';
+            }
+            if (playerPosition === 'right') {
+                const indicatorValue = (prev / playerHealthIndicator) * 100;
+                secondFighterHelthElement.style.width = `${indicatorValue}%`;
+                secondFighterHelthElement.style.backgroundColor = indicatorValue > 30 ? backgroundColor : 'red';
+            }
+        }
+
         function keyCodeListener(e) {
             if (fistPlayerHealth <= 0 || secondPlayerHealth <= 0) return;
             const keydown = e.code;
@@ -52,35 +75,34 @@ export async function fight([firstFighter, secondFighter]) {
                     fistPlayerMove = 'attack';
                     if (secondPlayerMove === 'attack' || secondPlayerMove === '') {
                         secondPlayerHealth -= getDamage(firstFighter);
+                        helthCounter(secondPlayerHealth, secondPlayerHealthIndicator, player.right);
                     }
                     if (secondPlayerMove === 'defense') {
                         secondPlayerHealth -= getDamage(firstFighter, secondFighter);
+                        helthCounter(secondPlayerHealth, secondPlayerHealthIndicator, player.right);
                     }
                     if (secondPlayerHealth <= 0) {
                         // console.log('First Fighter WIN!!!!');
                         winner = firstFighter;
                         resolve(winner);
                     }
-                    //   console.log(fistPlayerHealth);
-                    //   console.log(secondPlayerHealth);
-
                     break;
 
                 case controls.PlayerTwoAttack:
                     secondPlayerMove = 'attack';
                     if (fistPlayerMove === 'attack' || fistPlayerMove === '') {
                         fistPlayerHealth -= getDamage(secondFighter);
+                        helthCounter(fistPlayerHealth, fistPlayerHealthIndicator, player.left);
                     }
                     if (fistPlayerMove === 'defense') {
                         fistPlayerHealth -= getDamage(secondFighter, firstFighter);
+                        helthCounter(fistPlayerHealth, fistPlayerHealthIndicator, player.left);
                     }
                     if (fistPlayerHealth <= 0) {
                         // console.log('Second Fighter WIN!!!!');
                         winner = secondFighter;
                         resolve(winner);
                     }
-                    // console.log(fistPlayerHealth);
-                    // console.log(secondPlayerHealth);
                     break;
 
                 case controls.PlayerOneBlock:
@@ -104,6 +126,7 @@ export async function fight([firstFighter, secondFighter]) {
                     if (firstPlayerCriticalHitCombination.length === 3) {
                         // console.log(`Critical DAMAGE -${2 * firstFighter.attack}!`);
                         secondPlayerHealth -= getCriticalDamage(firstFighter);
+                        helthCounter(secondPlayerHealth, secondPlayerHealthIndicator, player.right);
                         //   console.log(getCriticalDamage(firstFighter));
                         firstPlayerCriticalHitCombination = [];
                         firstPlayerCriticalHitCombinationIsActive = false;
@@ -131,6 +154,7 @@ export async function fight([firstFighter, secondFighter]) {
                     if (secondPlayerCriticalHitCombination.length === 3) {
                         // console.log(`Critical DAMAGE -${2 * secondFighter.attack}!`);
                         fistPlayerHealth -= getCriticalDamage(secondFighter);
+                        helthCounter(fistPlayerHealth, fistPlayerHealthIndicator, player.left);
                         //   console.log(getCriticalDamage(secondFighter));
                         secondPlayerCriticalHitCombination = [];
                         secondPlayerCriticalHitCombinationIsActive = false;
@@ -150,16 +174,14 @@ export async function fight([firstFighter, secondFighter]) {
             }
         }
 
+        document.addEventListener('keydown', keyCodeListener);
+
         function keyupListener(event, playerCriticalHitCombination) {
             const index = playerCriticalHitCombination.indexOf(event.code);
             if (index > -1) {
                 playerCriticalHitCombination.splice(index, 1);
             }
         }
-
-        document.addEventListener('keydown', keyCodeListener);
-        // document.addEventListener('keyup', keyupListener(event, controls.PlayerOneCriticalHitCombination));
-        // document.addEventListener('keyup', keyupListener(event, controls.PlayerTwoCriticalHitCombination));
 
         document.addEventListener('keyup', event => {
             keyupListener(event, controls.PlayerOneCriticalHitCombination);
